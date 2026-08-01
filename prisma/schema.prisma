@@ -1,0 +1,163 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organ {
+  id          String   @id @default(uuid())
+  name        String
+  description String   @default("")
+  thumbnail   String   @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  visualLayers   VisualLayer[]
+  conceptNodes   ConceptNode[]
+  relationships  Relationship[]
+  reasoningPaths ReasoningPath[]
+  hyperedges     Hyperedge[]
+}
+
+model VisualLayer {
+  id          String  @id @default(uuid())
+  organId     String
+  name        String
+  description String  @default("")
+  order       Int     @default(0)
+  visible     Boolean @default(true)
+  opacity     Float   @default(1.0)
+  locked      Boolean @default(false)
+  imagePath   String  @default("")
+  alignX      Float   @default(0)
+  alignY      Float   @default(0)
+  alignScale  Float   @default(1.0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  organ        Organ        @relation(fields: [organId], references: [id], onDelete: Cascade)
+  annotations  Annotation[]
+  conceptNodes ConceptNode[]
+
+  @@unique([organId, order])
+}
+
+model Annotation {
+  id        String  @id @default(uuid())
+  layerId   String
+  nodeId    String
+  type      String  // PIN | RECTANGLE
+  x         Float
+  y         Float
+  width     Float   @default(0)
+  height    Float   @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  layer VisualLayer @relation(fields: [layerId], references: [id], onDelete: Cascade)
+  node  ConceptNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+}
+
+model ConceptNode {
+  id                String  @id @default(uuid())
+  organId           String
+  layerId           String
+  title             String
+  shortDefinition   String  @default("")
+  detailedExplanation String @default("")
+  tags              String  @default("")
+  authoringStatus   String  @default("draft")
+  generalInfo       String  @default("")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  organ             Organ             @relation(fields: [organId], references: [id], onDelete: Cascade)
+  layer             VisualLayer       @relation(fields: [layerId], references: [id], onDelete: Cascade)
+  annotations       Annotation[]
+  outgoingRelations Relationship[]    @relation("SourceNode")
+  incomingRelations Relationship[]    @relation("TargetNode")
+  pathSteps         ReasoningPathStep[]
+  hyperedgeMembers  HyperedgeMember[]
+}
+
+model Relationship {
+  id           String @id @default(uuid())
+  organId      String
+  sourceNodeId String
+  targetNodeId String
+  type         String // PART_OF, CONTAINS, ADJACENT_TO, FLOWS_TO, DRAINS_TO, SUPPLIES, INNERVATES, CAUSES, LEADS_TO, RESULTS_IN, PREVENTS, MECHANISM_OF, EXPLAINS, EVOLVES_TO, WORSENS_TO, IMPROVES_TO
+  lens         String // HIERARCHY | ROUTE | MECHANISM_FUNCTION | STATE
+  label        String @default("")
+  explanation  String @default("")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  organ  Organ       @relation(fields: [organId], references: [id], onDelete: Cascade)
+  source ConceptNode @relation("SourceNode", fields: [sourceNodeId], references: [id], onDelete: Cascade)
+  target ConceptNode @relation("TargetNode", fields: [targetNodeId], references: [id], onDelete: Cascade)
+}
+
+model ReasoningPath {
+  id              String @id @default(uuid())
+  organId         String
+  name            String
+  description     String @default("")
+  guidingQuestion String @default("")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  organ    Organ        @relation(fields: [organId], references: [id], onDelete: Cascade)
+  steps    ReasoningPathStep[]
+}
+
+model ReasoningPathStep {
+  id          String @id @default(uuid())
+  pathId      String
+  nodeId      String
+  order       Int
+  explanation String @default("")
+
+  path ReasoningPath @relation(fields: [pathId], references: [id], onDelete: Cascade)
+  node ConceptNode  @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+
+  @@unique([pathId, order])
+}
+
+model Hyperedge {
+  id          String @id @default(uuid())
+  organId     String
+  name        String
+  type        String @default("")
+  description String @default("")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  organ   Organ             @relation(fields: [organId], references: [id], onDelete: Cascade)
+  members HyperedgeMember[]
+}
+
+model HyperedgeMember {
+  id          String  @id @default(uuid())
+  hyperedgeId String
+  nodeId      String
+  isOutcome   Boolean @default(false)
+
+  hyperedge Hyperedge    @relation(fields: [hyperedgeId], references: [id], onDelete: Cascade)
+  node      ConceptNode @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+}
+
+model Evidence {
+  id                     String   @id @default(uuid())
+  targetType             String   // REASONING_PATH | HYPEREDGE
+  targetId               String
+  sourceTitle            String
+  url                    String   @default("")
+  notes                  String   @default("")
+  confidence             String   @default("Medium") // Low | Medium | High
+  confidenceExplanation  String   @default("")
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+}

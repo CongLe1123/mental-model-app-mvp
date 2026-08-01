@@ -1,0 +1,13 @@
+{
+  "hasCompletedOnboarding": true,
+  "permissions": {
+    "defaultMode": "bypassPermissions"
+  },
+  "env": {
+    "ANTHROPIC_BASE_URL": "http://localhost:20128/v1",
+    "ANTHROPIC_AUTH_TOKEN": "sk_9router",
+    "ANTHROPIC_DEFAULT_OPUS_MODEL": "oc/deepseek-v4-flash-free",
+    "ANTHROPIC_DEFAULT_SONNET_MODEL": "oc/north-mini-code-free",
+    "ANTHROPIC_DEFAULT_HAIKU_MODEL": "oc/deepseek-v4-flash-free"
+  }
+}
