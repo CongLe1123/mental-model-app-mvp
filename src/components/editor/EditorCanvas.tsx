@@ -421,11 +421,13 @@ export default function EditorCanvas() {
           : 'default'
       }}
     >
-      {/* Zoom & Hint indicator */}
-      <div className="absolute top-2 right-2 z-10 text-xs bg-[var(--surface)] px-2 py-1 rounded border border-[var(--border)] shadow-sm flex gap-3">
-        <span>Zoom: {Math.round(zoom * 100)}%</span>
+      {/* Zoom & Hint floating indicator */}
+      <div className="absolute top-3 right-3 z-10 text-xs bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-[#E2E8F0] shadow-md flex items-center gap-3">
+        <span className="font-mono font-semibold text-[#0F172A]">Zoom: {Math.round(zoom * 100)}%</span>
         {selectedAnnotationIds.length > 0 && (
-          <span className="text-[var(--accent)] font-medium">Selected: {selectedAnnotationIds.length} object(s)</span>
+          <span className="text-[#219EBC] font-bold px-2 py-0.5 rounded-full bg-[#EBF7FA] border border-[#B6E5F0]">
+            Selected: {selectedAnnotationIds.length}
+          </span>
         )}
       </div>
 
@@ -439,7 +441,7 @@ export default function EditorCanvas() {
         {/* Visible layers */}
         {visibleLayers.length === 0 && (
           <div className="empty-state absolute inset-0" style={{ width: 400, left: '50%', top: '50%', marginLeft: -200, marginTop: -50 }}>
-            <p>Add a visual layer to begin.</p>
+            <p className="text-base font-semibold text-[#5A6E7F]">Add a visual layer in the Layers panel to begin.</p>
           </div>
         )}
 
@@ -453,7 +455,7 @@ export default function EditorCanvas() {
                   src={layer.imagePath}
                   alt={layer.name}
                   className={`max-w-none absolute transition-shadow ${
-                    isActive && activeTool === 'select' ? 'cursor-move hover:ring-2 hover:ring-blue-400/50' : 'pointer-events-none'
+                    isActive && activeTool === 'select' ? 'cursor-move hover:ring-2 hover:ring-[#219EBC]/60' : 'pointer-events-none'
                   }`}
                   style={{
                     left: layer.alignX || 0,
@@ -466,7 +468,7 @@ export default function EditorCanvas() {
                 />
               ) : (
                 <div
-                  className="border-2 border-dashed border-[var(--border)] flex items-center justify-center text-[var(--text-muted)] text-xs"
+                  className="border-2 border-dashed border-[#CBD5E1] rounded-2xl flex items-center justify-center text-[#5A6E7F] text-xs bg-white/50"
                   style={{ width: 600, height: 400 }}
                 >
                   {layer.name} — {isActive ? 'Upload an image in Inspector' : 'No image'}
@@ -494,19 +496,21 @@ export default function EditorCanvas() {
                       {ann.type === 'PIN' ? (
                         <div
                           className={`absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-transform ${
-                            isSelected ? 'text-[var(--accent)] scale-125 ring-2 ring-blue-500/50 rounded-full p-1 bg-blue-50/80 shadow-md' : 'text-[var(--danger)] hover:scale-110'
+                            isSelected
+                              ? 'text-[#FB8A0A] scale-125 ring-3 ring-[#219EBC] rounded-full p-1 bg-[#EBF7FA] shadow-lg'
+                              : 'text-[#FB8A0A] hover:scale-110 drop-shadow-sm'
                           }`}
-                          style={{ fontSize: 20 }}
+                          style={{ fontSize: 22 }}
                           title={node?.title || 'Pin Node'}
                         >
                           📍
                         </div>
                       ) : (
                         <div
-                          className={`absolute border-2 cursor-pointer transition-all ${
+                          className={`absolute border-2 cursor-pointer transition-all rounded-lg ${
                             isSelected
-                              ? 'border-[var(--accent)] bg-blue-500/20 shadow-md ring-2 ring-blue-400/50'
-                              : 'border-amber-500 border-dashed bg-amber-500/10 hover:border-amber-600'
+                              ? 'border-[#219EBC] bg-[#219EBC]/20 shadow-md ring-2 ring-[#219EBC]/40'
+                              : 'border-[#FB8A0A] border-dashed bg-[#FB8A0A]/10 hover:border-[#DF7500]'
                           }`}
                           style={{
                             width: ann.width || 60,
@@ -517,7 +521,7 @@ export default function EditorCanvas() {
                           {/* Corner resize handle when selected */}
                           {isSelected && (
                             <div
-                              className="w-3 h-3 bg-[var(--accent)] absolute right-0 bottom-0 cursor-se-resize rounded-tl z-10"
+                              className="w-3.5 h-3.5 bg-[#219EBC] absolute right-0 bottom-0 cursor-se-resize rounded-tl-md z-10 shadow-xs hover:bg-[#1A86A1]"
                               onMouseDown={(e) => {
                                 e.stopPropagation()
                                 setResizingAnn(ann.id)
@@ -533,12 +537,12 @@ export default function EditorCanvas() {
 
                       {node && (
                         <div
-                          className={`absolute text-[10px] font-semibold whitespace-nowrap px-1.5 py-0.5 rounded shadow-sm transition-colors ${
+                          className={`absolute text-[11px] font-bold whitespace-nowrap px-2 py-0.5 rounded-lg shadow-sm transition-colors ${
                             isSelected
-                              ? 'bg-[var(--accent)] text-white'
+                              ? 'bg-[#219EBC] text-white shadow-md'
                               : ann.type === 'PIN'
-                              ? 'left-4 top-0 bg-[var(--surface)] border border-[var(--border)] text-[var(--foreground)]'
-                              : 'left-1 top-1 bg-[var(--surface)]/90 border border-[var(--border)] text-[var(--foreground)]'
+                              ? 'left-5 top-0 bg-white border border-[#E2E8F0] text-[#0F172A]'
+                              : 'left-1 top-1 bg-white/95 border border-[#E2E8F0] text-[#0F172A]'
                           }`}
                         >
                           {node.title}
@@ -554,7 +558,7 @@ export default function EditorCanvas() {
         {/* Marquee / Lasso selection rectangle */}
         {marqueeRect && (
           <div
-            className="absolute border border-[var(--accent)] bg-blue-500/15 pointer-events-none rounded-sm shadow-sm"
+            className="absolute border border-[#219EBC] bg-[#219EBC]/15 pointer-events-none rounded-md shadow-2xs"
             style={{
               left: marqueeRect.x,
               top: marqueeRect.y,
@@ -566,41 +570,44 @@ export default function EditorCanvas() {
 
         {/* New pin preview */}
         {newPinPos && (
-          <div className="absolute -translate-x-1/2 -translate-y-1/2 text-[var(--accent)] animate-bounce" style={{ left: newPinPos.x, top: newPinPos.y, fontSize: 20 }}>
+          <div className="absolute -translate-x-1/2 -translate-y-1/2 text-[#FB8A0A] animate-bounce" style={{ left: newPinPos.x, top: newPinPos.y, fontSize: 22 }}>
             📍
           </div>
         )}
 
         {/* New rect/region preview */}
         {newRect && (
-          <div className="absolute border-2 border-dashed border-[var(--accent)] bg-blue-500/20" style={{ left: newRect.x, top: newRect.y, width: newRect.w, height: newRect.h }} />
+          <div className="absolute border-2 border-dashed border-[#219EBC] bg-[#219EBC]/20 rounded-lg" style={{ left: newRect.x, top: newRect.y, width: newRect.w, height: newRect.h }} />
         )}
       </div>
 
       {/* Node creation form */}
       {showNodeForm && (
         <div
-          className="absolute top-4 left-1/2 -translate-x-1/2 z-20 bg-[var(--surface)] border border-[var(--border)] rounded-lg shadow-lg p-4 w-80"
+          className="absolute top-6 left-1/2 -translate-x-1/2 z-20 bg-white border border-[#B6E5F0] rounded-2xl shadow-xl p-5 w-84 transition-all"
           onClick={e => e.stopPropagation()}
           onMouseDown={e => e.stopPropagation()}
           onMouseUp={e => e.stopPropagation()}
         >
-          <h3 className="text-sm font-medium mb-2">Create Concept Node ({newRect ? 'Region' : 'Pin'})</h3>
+          <h3 className="text-sm font-extrabold text-[#0F172A] mb-3 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#FB8A0A]" />
+            Create Concept Node ({newRect ? 'Region' : 'Pin'})
+          </h3>
           <input
             type="text"
             value={nodeTitle}
             onChange={e => setNodeTitle(e.target.value)}
-            placeholder="Node title (required)"
-            className="w-full px-3 py-2 border border-[var(--border)] rounded-md text-sm mb-3"
+            placeholder="Node title (e.g., Left Ventricle)"
+            className="w-full px-3.5 py-2 border border-[#E2E8F0] rounded-xl text-sm mb-4 focus:outline-none focus:border-[#219EBC] focus:ring-2 focus:ring-[#219EBC]/20 bg-[#F6F9FA]"
             autoFocus
             onKeyDown={e => e.key === 'Enter' && handleCreateNode()}
           />
-          <div className="flex gap-2">
-            <button onClick={handleCreateNode} className="px-4 py-1.5 bg-[var(--accent)] text-white rounded-md text-sm" disabled={!nodeTitle.trim()}>
-              Create
-            </button>
-            <button onClick={handleCancelCreateNode} className="px-4 py-1.5 border rounded-md text-sm">
+          <div className="flex gap-2 justify-end">
+            <button onClick={handleCancelCreateNode} className="px-4 py-2 border border-[#E2E8F0] rounded-xl text-xs font-semibold text-[#5A6E7F] hover:bg-[#F0F5F8] cursor-pointer">
               Cancel
+            </button>
+            <button onClick={handleCreateNode} className="px-4 py-2 bg-[#FB8A0A] hover:bg-[#DF7500] text-white rounded-xl text-xs font-semibold shadow-md shadow-[#FB8A0A]/20 cursor-pointer" disabled={!nodeTitle.trim()}>
+              Create Node
             </button>
           </div>
         </div>

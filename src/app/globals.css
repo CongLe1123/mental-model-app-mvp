@@ -1,30 +1,65 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --border: #e2e8f0;
-  --accent: #2563eb;
-  --accent-hover: #1d4ed8;
+  /* Brand Theme Colors */
+  --primary: #219ebc;
+  --primary-hover: #1a86a1;
+  --primary-light: #ebf7fa;
+  --primary-border: #b6e5f0;
+
+  --secondary: #fb8a0a;
+  --secondary-hover: #df7500;
+  --secondary-light: #fff6ec;
+  --secondary-border: #ffd4a3;
+
+  --background: #f6f9fa;
   --surface: #ffffff;
-  --surface-hover: #f1f5f9;
-  --text-muted: #64748b;
-  --danger: #dc2626;
-  --success: #16a34a;
-  --warning: #d97706;
+  --surface-hover: #f0f5f8;
+
+  --foreground: #0f172a;
+  --text-muted: #5a6e7f;
+  --border: #e2e8f0;
+  --border-subtle: #edf2f7;
+
+  --danger: #ef4444;
+  --success: #10b981;
+  --warning: #fb8a0a;
+
+  /* Backward compatibility aliases */
+  --accent: #219ebc;
+  --accent-hover: #1a86a1;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --font-sans: var(--font-geist-sans, system-ui, -apple-system, sans-serif);
+  --font-mono: var(--font-geist-mono, monospace);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans, Arial, Helvetica, sans-serif);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 /* Editor layout classes */
@@ -44,27 +79,28 @@ body {
 .knowledge-panel {
   border-top: 1px solid var(--border);
   background: var(--surface);
+  box-shadow: 0 -4px 12px rgba(15, 23, 42, 0.03);
 }
 
 /* Onion layer styles */
 .layer-thumbnail {
   position: relative;
   border: 2px solid transparent;
-  transition: border-color 0.15s;
+  transition: all 0.15s ease;
 }
 
 .layer-thumbnail.active {
-  border-color: var(--accent);
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(33, 158, 188, 0.2);
 }
 
-/* Canvas */
+/* Canvas Container */
 .canvas-container {
   position: relative;
   overflow: hidden;
-  background: #e2e8f0;
-  background-image:
-    radial-gradient(circle, #cbd5e1 1px, transparent 1px);
-  background-size: 20px 20px;
+  background-color: #f1f5f9;
+  background-image: radial-gradient(circle, #219ebc26 1.2px, transparent 1.2px);
+  background-size: 24px 24px;
 }
 
 /* Empty state */
@@ -84,49 +120,65 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
+  padding: 0 10px;
   height: 32px;
-  border-radius: 4px;
+  border-radius: 6px;
   border: 1px solid var(--border);
   background: var(--surface);
+  color: var(--foreground);
   cursor: pointer;
-  font-size: 14px;
-  transition: background 0.1s, border-color 0.1s;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.15s ease;
 }
 
 .tool-btn:hover {
   background: var(--surface-hover);
+  border-color: #cbd5e1;
 }
 
 .tool-btn.active {
-  background: var(--accent);
-  color: white;
-  border-color: var(--accent);
+  background: var(--primary);
+  color: #ffffff;
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px rgba(33, 158, 188, 0.3);
 }
 
 .tool-btn:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
 
 /* Inspector section */
 .inspector-section {
   border-bottom: 1px solid var(--border);
-  padding: 0.75rem;
+  padding: 0.875rem 1rem;
 }
 
 .inspector-section h3 {
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-  margin-bottom: 0.5rem;
+  letter-spacing: 0.06em;
+  color: var(--primary);
+  margin-bottom: 0.625rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.inspector-section h3::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 12px;
+  background-color: var(--primary);
+  border-radius: 2px;
 }
 
 /* Focus visible for accessibility */
 *:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
 
