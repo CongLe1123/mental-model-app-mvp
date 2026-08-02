@@ -11,25 +11,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'file and layerId required' }, { status: 400 })
     }
 
-    // Validate format
-    const ext = file.name.split('.').pop()?.toLowerCase() || ''
-    const validExts = ['png', 'jpg', 'jpeg', 'webp', 'svg']
-    if (!validExts.includes(ext)) {
-      return NextResponse.json({ error: 'Unsupported format. Use PNG, JPG, WEBP, or SVG' }, { status: 400 })
-    }
-
-    const mimeTypes: Record<string, string> = {
-      png: 'image/png',
-      jpg: 'image/jpeg',
-      jpeg: 'image/jpeg',
-      webp: 'image/webp',
-      svg: 'image/svg+xml',
-    }
-    const mimeType = file.type || mimeTypes[ext] || 'image/png'
-
-    // Convert file to Base64 Data URL (compatible with Vercel serverless environment)
-    const arrayBuffer = await file.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
+    const bytes = await file.arrayBuffer()
+    const buffer = Buffer.from(bytes)
+    const mimeType = file.type || 'image/png'
     const base64Image = `data:${mimeType};base64,${buffer.toString('base64')}`
 
     await prisma.visualLayer.update({
@@ -38,9 +22,10 @@ export async function POST(req: Request) {
     })
 
     return NextResponse.json({ imagePath: base64Image })
-  } catch (error: any) {
-    console.error('[API /api/upload POST Error]:', error)
-    return NextResponse.json({ error: error?.message || 'Failed to upload image' }, { status: 500 })
+  } catch (error: unknown) {
+    const err = error as Error
+    console.error('[API /api/upload POST Error]:', err)
+    return NextResponse.json({ error: err?.message || 'Failed to upload image' }, { status: 500 })
   }
 }
 
@@ -56,9 +41,9 @@ export async function DELETE(req: Request) {
     })
 
     return NextResponse.json({ ok: true })
-  } catch (error: any) {
-    console.error('[API /api/upload DELETE Error]:', error)
-    return NextResponse.json({ error: error?.message || 'Failed to delete image' }, { status: 500 })
+  } catch (error: unknown) {
+    const err = error as Error
+    console.error('[API /api/upload DELETE Error]:', err)
+    return NextResponse.json({ error: err?.message || 'Failed to delete image' }, { status: 500 })
   }
 }
-

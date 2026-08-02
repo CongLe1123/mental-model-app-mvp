@@ -14,7 +14,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   return NextResponse.json(member, { status: 201 })
 }
 
-export async function DELETE(req: Request, _context: { params: Promise<{ id: string }> }) {
+export async function DELETE(req: Request) {
   const { searchParams } = new URL(req.url)
   const memberId = searchParams.get('id')
   if (!memberId) return NextResponse.json({ error: 'member id required' }, { status: 400 })

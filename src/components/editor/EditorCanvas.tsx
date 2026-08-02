@@ -5,8 +5,8 @@ import { useStore } from '@/lib/store'
 
 export default function EditorCanvas() {
   const {
-    layers, activeLayerId, activeTool, setActiveTool, nodes, annotations,
-    selectedAnnotationId, selectedAnnotationIds, setSelectedAnnotationId, setSelectedAnnotationIds,
+    layers, activeLayerId, activeTool, nodes, annotations,
+    selectedAnnotationIds, setSelectedAnnotationIds,
     selectedNodeId, setSelectedNodeId,
     createNodeWithAnnotation, updateAnnotation, deleteAnnotation, deleteNode, updateLayer,
     currentOrganId,
@@ -183,7 +183,6 @@ export default function EditorCanvas() {
       const dy = coords.y - imageDragStart.y
       const newAlignX = Math.round(imageDragStart.initAlignX + dx)
       const newAlignY = Math.round(imageDragStart.initAlignY + dy)
-      // Instant optimistic UI update without awaiting network requests during mouse movement
       useStore.setState({
         layers: layers.map(l => l.id === activeLayer.id ? { ...l, alignX: newAlignX, alignY: newAlignY } : l)
       })
@@ -193,7 +192,6 @@ export default function EditorCanvas() {
     if (isDraggingObjects && dragCanvasStart) {
       const dx = coords.x - dragCanvasStart.x
       const dy = coords.y - dragCanvasStart.y
-      // Instant optimistic UI update for all dragged annotations
       useStore.setState({
         annotations: annotations.map(a => {
           const initPos = initialAnnPositions[a.id]
@@ -264,7 +262,6 @@ export default function EditorCanvas() {
     }
 
     if (marqueeRect && marqueeStart) {
-      // Find all annotations on active layer within marquee bounds
       if (marqueeRect.w > 5 || marqueeRect.h > 5) {
         const found = annotations
           .filter(a => a.layerId === activeLayerId)
@@ -309,7 +306,6 @@ export default function EditorCanvas() {
     }
   }
 
-  // Global mouseup listener to catch releases outside component container
   useEffect(() => {
     const onGlobalMouseUp = () => {
       if (isPanning || rectStart || resizingAnn || isDraggingObjects || isDraggingImage || marqueeStart) {
@@ -318,6 +314,7 @@ export default function EditorCanvas() {
     }
     window.addEventListener('mouseup', onGlobalMouseUp)
     return () => window.removeEventListener('mouseup', onGlobalMouseUp)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPanning, rectStart, resizingAnn, isDraggingObjects, isDraggingImage, marqueeStart, newRect, activeTool, marqueeRect])
 
   const handleWheel = (e: React.WheelEvent) => {
@@ -382,7 +379,6 @@ export default function EditorCanvas() {
     }
   }
 
-  // Keyboard handlers
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -400,6 +396,7 @@ export default function EditorCanvas() {
     }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedAnnotationIds, selectedNodeId, showNodeForm])
 
   return (
@@ -421,12 +418,12 @@ export default function EditorCanvas() {
           : 'default'
       }}
     >
-      {/* Zoom & Hint floating indicator */}
-      <div className="absolute top-3 right-3 z-10 text-xs bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-xl border border-[#E2E8F0] shadow-md flex items-center gap-3">
-        <span className="font-mono font-semibold text-[#0F172A]">Zoom: {Math.round(zoom * 100)}%</span>
+      {/* Neo Zoom & Hint floating indicator */}
+      <div className="absolute top-4 right-4 z-10 text-xs neo-container-sm px-3.5 py-1.5 flex items-center gap-3 bg-white">
+        <span className="font-mono font-black text-black">ZOOM: {Math.round(zoom * 100)}%</span>
         {selectedAnnotationIds.length > 0 && (
-          <span className="text-[#219EBC] font-bold px-2 py-0.5 rounded-full bg-[#EBF7FA] border border-[#B6E5F0]">
-            Selected: {selectedAnnotationIds.length}
+          <span className="neo-badge bg-[var(--secondary)] text-black">
+            SELECTED: {selectedAnnotationIds.length}
           </span>
         )}
       </div>
@@ -440,8 +437,9 @@ export default function EditorCanvas() {
       >
         {/* Visible layers */}
         {visibleLayers.length === 0 && (
-          <div className="empty-state absolute inset-0" style={{ width: 400, left: '50%', top: '50%', marginLeft: -200, marginTop: -50 }}>
-            <p className="text-base font-semibold text-[#5A6E7F]">Add a visual layer in the Layers panel to begin.</p>
+          <div className="neo-container p-6 bg-white absolute inset-0 text-center flex flex-col items-center justify-center gap-2" style={{ width: 400, height: 140, left: '50%', top: '50%', marginLeft: -200, marginTop: -70 }}>
+            <p className="text-sm font-black uppercase text-black">NO VISIBLE VISUAL LAYER</p>
+            <p className="text-xs font-semibold text-[#444444]">Add a visual layer in the Layers panel to begin authoring.</p>
           </div>
         )}
 
@@ -454,8 +452,8 @@ export default function EditorCanvas() {
                 <img
                   src={layer.imagePath}
                   alt={layer.name}
-                  className={`max-w-none absolute transition-shadow ${
-                    isActive && activeTool === 'select' ? 'cursor-move hover:ring-2 hover:ring-[#219EBC]/60' : 'pointer-events-none'
+                  className={`max-w-none absolute ${
+                    isActive && activeTool === 'select' ? 'cursor-move hover:outline-3 hover:outline-black' : 'pointer-events-none'
                   }`}
                   style={{
                     left: layer.alignX || 0,
@@ -468,7 +466,7 @@ export default function EditorCanvas() {
                 />
               ) : (
                 <div
-                  className="border-2 border-dashed border-[#CBD5E1] rounded-2xl flex items-center justify-center text-[#5A6E7F] text-xs bg-white/50"
+                  className="border-3 border-dashed border-black bg-white/70 flex items-center justify-center text-black text-xs font-black uppercase shadow-[3px_3px_0px_#000]"
                   style={{ width: 600, height: 400 }}
                 >
                   {layer.name} — {isActive ? 'Upload an image in Inspector' : 'No image'}
@@ -495,22 +493,22 @@ export default function EditorCanvas() {
                     >
                       {ann.type === 'PIN' ? (
                         <div
-                          className={`absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-transform ${
+                          className={`absolute -translate-x-1/2 -translate-y-1/2 cursor-pointer transition-transform flex items-center justify-center ${
                             isSelected
-                              ? 'text-[#FB8A0A] scale-125 ring-3 ring-[#219EBC] rounded-full p-1 bg-[#EBF7FA] shadow-lg'
-                              : 'text-[#FB8A0A] hover:scale-110 drop-shadow-sm'
+                              ? 'scale-125 bg-[var(--accent)] text-black border-2 border-black shadow-[4px_4px_0px_#000] p-1'
+                              : 'bg-[var(--primary)] text-black border-2 border-black shadow-[2px_2px_0px_#000] p-1 hover:scale-110'
                           }`}
-                          style={{ fontSize: 22 }}
+                          style={{ fontSize: 20 }}
                           title={node?.title || 'Pin Node'}
                         >
                           📍
                         </div>
                       ) : (
                         <div
-                          className={`absolute border-2 cursor-pointer transition-all rounded-lg ${
+                          className={`absolute border-2.5 cursor-pointer transition-all ${
                             isSelected
-                              ? 'border-[#219EBC] bg-[#219EBC]/20 shadow-md ring-2 ring-[#219EBC]/40'
-                              : 'border-[#FB8A0A] border-dashed bg-[#FB8A0A]/10 hover:border-[#DF7500]'
+                              ? 'border-black bg-[var(--secondary)]/30 shadow-[4px_4px_0px_#000]'
+                              : 'border-black border-dashed bg-[var(--primary)]/15 hover:bg-[var(--primary)]/25 shadow-[2px_2px_0px_#000]'
                           }`}
                           style={{
                             width: ann.width || 60,
@@ -521,7 +519,7 @@ export default function EditorCanvas() {
                           {/* Corner resize handle when selected */}
                           {isSelected && (
                             <div
-                              className="w-3.5 h-3.5 bg-[#219EBC] absolute right-0 bottom-0 cursor-se-resize rounded-tl-md z-10 shadow-xs hover:bg-[#1A86A1]"
+                              className="w-4 h-4 bg-black border border-white absolute right-0 bottom-0 cursor-se-resize z-10 shadow-[2px_2px_0px_#000]"
                               onMouseDown={(e) => {
                                 e.stopPropagation()
                                 setResizingAnn(ann.id)
@@ -537,12 +535,12 @@ export default function EditorCanvas() {
 
                       {node && (
                         <div
-                          className={`absolute text-[11px] font-bold whitespace-nowrap px-2 py-0.5 rounded-lg shadow-sm transition-colors ${
+                          className={`absolute neo-badge text-xs font-black uppercase whitespace-nowrap ${
                             isSelected
-                              ? 'bg-[#219EBC] text-white shadow-md'
+                              ? 'bg-[var(--primary)] text-black shadow-[3px_3px_0px_#000]'
                               : ann.type === 'PIN'
-                              ? 'left-5 top-0 bg-white border border-[#E2E8F0] text-[#0F172A]'
-                              : 'left-1 top-1 bg-white/95 border border-[#E2E8F0] text-[#0F172A]'
+                              ? 'left-6 top-0 bg-white text-black shadow-[2px_2px_0px_#000]'
+                              : 'left-1 top-1 bg-white text-black shadow-[2px_2px_0px_#000]'
                           }`}
                         >
                           {node.title}
@@ -558,7 +556,7 @@ export default function EditorCanvas() {
         {/* Marquee / Lasso selection rectangle */}
         {marqueeRect && (
           <div
-            className="absolute border border-[#219EBC] bg-[#219EBC]/15 pointer-events-none rounded-md shadow-2xs"
+            className="absolute border-2 border-black bg-[var(--primary)]/25 pointer-events-none shadow-[3px_3px_0px_#000]"
             style={{
               left: marqueeRect.x,
               top: marqueeRect.y,
@@ -570,44 +568,44 @@ export default function EditorCanvas() {
 
         {/* New pin preview */}
         {newPinPos && (
-          <div className="absolute -translate-x-1/2 -translate-y-1/2 text-[#FB8A0A] animate-bounce" style={{ left: newPinPos.x, top: newPinPos.y, fontSize: 22 }}>
+          <div className="absolute -translate-x-1/2 -translate-y-1/2 bg-[var(--accent)] border-2 border-black p-1 text-black shadow-[3px_3px_0px_#000] animate-bounce" style={{ left: newPinPos.x, top: newPinPos.y, fontSize: 20 }}>
             📍
           </div>
         )}
 
         {/* New rect/region preview */}
         {newRect && (
-          <div className="absolute border-2 border-dashed border-[#219EBC] bg-[#219EBC]/20 rounded-lg" style={{ left: newRect.x, top: newRect.y, width: newRect.w, height: newRect.h }} />
+          <div className="absolute border-2.5 border-dashed border-black bg-[var(--secondary)]/30 shadow-[3px_3px_0px_#000]" style={{ left: newRect.x, top: newRect.y, width: newRect.w, height: newRect.h }} />
         )}
       </div>
 
-      {/* Node creation form */}
+      {/* Node creation form popover */}
       {showNodeForm && (
         <div
-          className="absolute top-6 left-1/2 -translate-x-1/2 z-20 bg-white border border-[#B6E5F0] rounded-2xl shadow-xl p-5 w-84 transition-all"
+          className="absolute top-6 left-1/2 -translate-x-1/2 z-30 neo-container p-5 w-90 bg-white shadow-[6px_6px_0px_#000] space-y-3"
           onClick={e => e.stopPropagation()}
           onMouseDown={e => e.stopPropagation()}
           onMouseUp={e => e.stopPropagation()}
         >
-          <h3 className="text-sm font-extrabold text-[#0F172A] mb-3 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#FB8A0A]" />
-            Create Concept Node ({newRect ? 'Region' : 'Pin'})
+          <h3 className="text-sm font-black uppercase text-black flex items-center gap-2">
+            <span className="w-3 h-3 border border-black bg-[var(--accent)]" />
+            CREATE CONCEPT NODE ({newRect ? 'REGION' : 'PIN'})
           </h3>
           <input
             type="text"
             value={nodeTitle}
             onChange={e => setNodeTitle(e.target.value)}
             placeholder="Node title (e.g., Left Ventricle)"
-            className="w-full px-3.5 py-2 border border-[#E2E8F0] rounded-xl text-sm mb-4 focus:outline-none focus:border-[#219EBC] focus:ring-2 focus:ring-[#219EBC]/20 bg-[#F6F9FA]"
+            className="neo-input w-full px-3.5 py-2 text-sm"
             autoFocus
             onKeyDown={e => e.key === 'Enter' && handleCreateNode()}
           />
           <div className="flex gap-2 justify-end">
-            <button onClick={handleCancelCreateNode} className="px-4 py-2 border border-[#E2E8F0] rounded-xl text-xs font-semibold text-[#5A6E7F] hover:bg-[#F0F5F8] cursor-pointer">
-              Cancel
+            <button onClick={handleCancelCreateNode} className="neo-btn neo-btn-white px-4 py-2 text-xs font-bold">
+              CANCEL
             </button>
-            <button onClick={handleCreateNode} className="px-4 py-2 bg-[#FB8A0A] hover:bg-[#DF7500] text-white rounded-xl text-xs font-semibold shadow-md shadow-[#FB8A0A]/20 cursor-pointer" disabled={!nodeTitle.trim()}>
-              Create Node
+            <button onClick={handleCreateNode} className="neo-btn neo-btn-accent px-4 py-2 text-xs font-black" disabled={!nodeTitle.trim()}>
+              CREATE NODE
             </button>
           </div>
         </div>

@@ -4,7 +4,7 @@ import { create } from 'zustand'
 import type {
   OrganData, VisualLayerData, AnnotationData, ConceptNodeData,
   RelationshipData, ReasoningPathData, HyperedgeData, EvidenceData, DeleteImpact,
-  NodeWithRelations, ReasoningPathStepData, HyperedgeMemberData,
+  NodeWithRelations,
 } from './types'
 
 export type EditorTool = 'select' | 'pan' | 'pin' | 'rectangle' | 'relationship' | 'reasoning-path' | 'hyperedge'
@@ -146,6 +146,7 @@ type HistorySnapshot = {
   evidence: EvidenceData[]
 }
 
+// eslint-disable-next-line prefer-const
 let historyPast: HistorySnapshot[] = []
 let historyFuture: HistorySnapshot[] = []
 

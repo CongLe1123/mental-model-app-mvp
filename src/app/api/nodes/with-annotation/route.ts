@@ -13,10 +13,16 @@ export async function POST(req: Request) {
         organId: node.organId,
         layerId: node.layerId,
         title: node.title.trim(),
+        canonicalName: node.canonicalName || '',
+        category: node.category || '',
+        aliases: node.aliases || '',
         shortDefinition: node.shortDefinition || '',
         tags: node.tags || '',
         authoringStatus: node.authoringStatus || 'draft',
         generalInfo: node.generalInfo || '',
+        anatomicalLocation: node.anatomicalLocation || '',
+        editorComment: node.editorComment || '',
+        suggestedTrails: node.suggestedTrails || '',
       },
     })
     const ann = await tx.annotation.create({

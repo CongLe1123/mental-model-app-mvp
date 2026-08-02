@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 
-export async function PATCH(req: Request, _context: { params: Promise<{ pathId: string }> }) {
+export async function PATCH(req: Request) {
   const { stepIds } = await req.json()
   if (!Array.isArray(stepIds)) {
     return NextResponse.json({ error: 'stepIds array required' }, { status: 400 })

@@ -62,17 +62,23 @@ model Annotation {
 }
 
 model ConceptNode {
-  id                String  @id @default(uuid())
-  organId           String
-  layerId           String
-  title             String
-  shortDefinition   String  @default("")
-  detailedExplanation String @default("")
-  tags              String  @default("")
-  authoringStatus   String  @default("draft")
-  generalInfo       String  @default("")
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id                  String   @id @default(uuid())
+  organId             String
+  layerId             String
+  title               String
+  canonicalName       String   @default("")
+  category            String   @default("")
+  aliases             String   @default("")
+  shortDefinition     String   @default("")
+  detailedExplanation String   @default("")
+  tags                String   @default("")
+  authoringStatus     String   @default("draft")
+  generalInfo         String   @default("")
+  anatomicalLocation  String   @default("")
+  editorComment       String   @default("")
+  suggestedTrails     String   @default("")
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   organ             Organ             @relation(fields: [organId], references: [id], onDelete: Cascade)
   layer             VisualLayer       @relation(fields: [layerId], references: [id], onDelete: Cascade)

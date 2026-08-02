@@ -23,16 +23,18 @@ export default function OrganEditorPage() {
 
   if (loadError) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen gap-4 p-8">
-        <p className="text-lg font-medium text-[var(--danger)]">Failed to load organ</p>
-        <p className="text-sm text-[var(--text-muted)]">{loadError}</p>
-        <div className="flex gap-3">
-          <button onClick={() => { setLoadError(null); loadOrganData(organId) }} className="px-4 py-2 bg-[var(--accent)] text-white rounded-md text-sm">
-            Retry
-          </button>
-          <button onClick={() => router.push('/')} className="px-4 py-2 border rounded-md text-sm">
-            Back to Dashboard
-          </button>
+      <div className="flex flex-col items-center justify-center min-h-screen gap-4 p-8 bg-[#FFFDF5]">
+        <div className="neo-container p-8 max-w-md bg-white text-center space-y-4 shadow-[6px_6px_0px_#000]">
+          <h2 className="text-xl font-black uppercase text-[var(--danger)]">FAILED TO LOAD ORGAN</h2>
+          <p className="text-xs font-bold text-black">{loadError}</p>
+          <div className="flex gap-3 justify-center pt-2">
+            <button onClick={() => { setLoadError(null); loadOrganData(organId) }} className="neo-btn neo-btn-primary px-5 py-2 text-xs font-black">
+              RETRY
+            </button>
+            <button onClick={() => router.push('/')} className="neo-btn neo-btn-white px-5 py-2 text-xs font-bold">
+              BACK TO DASHBOARD
+            </button>
+          </div>
         </div>
       </div>
     )

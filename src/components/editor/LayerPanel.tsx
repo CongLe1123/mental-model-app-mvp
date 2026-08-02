@@ -134,41 +134,41 @@ export default function LayerPanel() {
   }
 
   return (
-    <div className="flex flex-col h-full border-r border-[#E2E8F0] bg-white select-none text-xs">
+    <div className="flex flex-col h-full border-r-2.5 border-black bg-white select-none text-xs">
       {/* Panel Header */}
-      <div className="p-3 border-b border-[#E2E8F0] bg-[#F6F9FA] flex items-center justify-between">
-        <div className="flex items-center gap-2 font-bold text-[11px] tracking-wider uppercase text-[#0F172A]">
-          <span className="w-2 h-2 rounded-full bg-[#219EBC]" />
-          <span>Layers</span>
-          <span className="px-2 py-0.5 rounded-full bg-[#EBF7FA] text-[10px] font-bold text-[#219EBC] border border-[#B6E5F0]">
+      <div className="p-3 border-b-2 border-black bg-[var(--surface-alt)] flex items-center justify-between">
+        <div className="flex items-center gap-2 font-black text-xs tracking-wider uppercase text-black">
+          <span className="w-3 h-3 border border-black bg-[var(--primary)]" />
+          <span>LAYERS</span>
+          <span className="neo-badge bg-[var(--primary)] text-black">
             {layers.length}
           </span>
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="px-2.5 py-1 bg-[#219EBC] hover:bg-[#1A86A1] text-white rounded-lg text-[11px] font-semibold transition-all flex items-center gap-1 shadow-2xs cursor-pointer"
+          className="neo-btn neo-btn-primary px-2.5 py-1 text-[11px] font-black"
           title="Create New Layer"
         >
-          <span>+</span> New Layer
+          + NEW LAYER
         </button>
       </div>
 
       {/* Layer Controls Bar (Opacity & Visibility) */}
       {activeLayer && (
-        <div className="px-3 py-2.5 border-b border-[#E2E8F0] bg-[#EBF7FA]/40 space-y-2">
-          <div className="flex items-center justify-between text-[11px] text-[#5A6E7F]">
-            <span>Opacity: <strong className="text-[#0F172A] font-bold">{Math.round(activeLayer.opacity * 100)}%</strong></span>
-            <div className="flex items-center gap-1">
+        <div className="px-3 py-2.5 border-b-2 border-black bg-[var(--primary-light)] space-y-2">
+          <div className="flex items-center justify-between text-xs text-black font-bold">
+            <span>OPACITY: <strong className="font-black text-black">{Math.round(activeLayer.opacity * 100)}%</strong></span>
+            <div className="flex items-center gap-1.5">
               <button
                 onClick={() => updateLayer(activeLayer.id, { visible: !activeLayer.visible })}
-                className={`p-1 rounded-md hover:bg-white transition-colors cursor-pointer ${activeLayer.visible ? 'text-[#0F172A]' : 'opacity-40'}`}
+                className={`neo-btn neo-btn-white p-1 text-xs ${activeLayer.visible ? '' : 'opacity-40'}`}
                 title={activeLayer.visible ? 'Hide Layer' : 'Show Layer'}
               >
                 {activeLayer.visible ? '👁️' : '🕶️'}
               </button>
               <button
                 onClick={() => updateLayer(activeLayer.id, { locked: !activeLayer.locked })}
-                className={`p-1 rounded-md hover:bg-white transition-colors cursor-pointer ${activeLayer.locked ? 'text-[#FB8A0A]' : 'opacity-40'}`}
+                className={`neo-btn neo-btn-white p-1 text-xs ${activeLayer.locked ? 'bg-[var(--warning)]' : 'opacity-40'}`}
                 title={activeLayer.locked ? 'Unlock Layer' : 'Lock Layer'}
               >
                 {activeLayer.locked ? '🔒' : '🔓'}
@@ -182,20 +182,20 @@ export default function LayerPanel() {
             step="0.05"
             value={activeLayer.opacity}
             onChange={(e) => handleOpacityChange(parseFloat(e.target.value))}
-            className="w-full h-1.5 cursor-pointer accent-[#219EBC] bg-[#CBD5E1] rounded-lg"
+            className="w-full h-2 cursor-pointer accent-black bg-white border border-black"
           />
         </div>
       )}
 
       {/* Inline Create Modal */}
       {showCreateModal && (
-        <div className="p-3 border-b border-[#219EBC] bg-[#EBF7FA]">
+        <div className="p-3 border-b-2 border-black bg-[var(--secondary-light)] space-y-2">
           <input
             type="text"
             value={newLayerName}
             onChange={e => setNewLayerName(e.target.value)}
             placeholder="Layer name..."
-            className="w-full px-2.5 py-1.5 border border-[#B6E5F0] rounded-lg text-xs mb-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#219EBC]/30"
+            className="neo-input w-full px-2.5 py-1.5 text-xs bg-white"
             autoFocus
             onKeyDown={e => {
               if (e.key === 'Enter') handleCreateLayer()
@@ -203,17 +203,17 @@ export default function LayerPanel() {
             }}
           />
           <div className="flex gap-1.5 justify-end">
-            <button onClick={handleCreateLayer} className="px-3 py-1 bg-[#219EBC] text-white rounded-md text-[11px] font-semibold cursor-pointer">Add</button>
-            <button onClick={() => setShowCreateModal(false)} className="px-3 py-1 border border-[#E2E8F0] bg-white rounded-md text-[11px] text-[#5A6E7F] cursor-pointer">Cancel</button>
+            <button onClick={handleCreateLayer} className="neo-btn neo-btn-secondary px-3 py-1 text-xs font-black">ADD</button>
+            <button onClick={() => setShowCreateModal(false)} className="neo-btn neo-btn-white px-3 py-1 text-xs font-bold">CANCEL</button>
           </div>
         </div>
       )}
 
       {/* Layer List Container */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-1.5">
+      <div className="flex-1 overflow-y-auto p-2.5 space-y-2">
         {sortedLayers.length === 0 && (
-          <div className="py-12 text-center text-[#5A6E7F] text-xs">
-            No layers found.<br />Click "+ New Layer" to add one.
+          <div className="py-12 text-center text-black font-bold text-xs bg-[var(--surface-alt)] border-2 border-black p-4">
+            No layers found.<br />Click &quot;+ NEW LAYER&quot; to add one.
           </div>
         )}
 
@@ -231,16 +231,16 @@ export default function LayerPanel() {
               onDragOver={(e) => handleDragOver(e, index)}
               onDrop={() => handleDrop(index)}
               onClick={() => setActiveLayerId(layer.id)}
-              className={`group relative flex items-center gap-2 p-2 rounded-xl border transition-all cursor-pointer ${
+              className={`group relative flex items-center gap-2 p-2.5 border-2 border-black transition-all cursor-pointer ${
                 isActive
-                  ? 'bg-[#EBF7FA] border-[#219EBC] border-l-4 border-l-[#219EBC] text-[#219EBC] font-semibold shadow-2xs'
-                  : 'bg-white border-[#E2E8F0] hover:border-[#CBD5E1] hover:bg-[#F0F5F8] text-[#0F172A]'
-              } ${isDragging ? 'opacity-40 border-dashed border-gray-400' : ''} ${
-                isDragOver ? 'border-t-2 border-t-[#219EBC]' : ''
+                  ? 'bg-[var(--secondary-light)] border-l-6 border-l-black font-black shadow-[3px_3px_0px_#000]'
+                  : 'bg-white hover:bg-[var(--surface-alt)] text-black shadow-[2px_2px_0px_#000]'
+              } ${isDragging ? 'opacity-40 border-dashed' : ''} ${
+                isDragOver ? 'border-t-4 border-t-black' : ''
               }`}
             >
               {/* Drag handle grip */}
-              <span className="text-[#5A6E7F] cursor-grab hover:text-[#0F172A] opacity-40 group-hover:opacity-100 text-[10px]">
+              <span className="text-black font-black cursor-grab opacity-60 group-hover:opacity-100 text-xs">
                 ⋮⋮
               </span>
 
@@ -250,21 +250,21 @@ export default function LayerPanel() {
                   e.stopPropagation()
                   updateLayer(layer.id, { visible: !layer.visible })
                 }}
-                className={`text-[12px] p-0.5 hover:scale-110 transition-transform ${layer.visible ? 'opacity-100' : 'opacity-25'}`}
+                className={`text-xs p-0.5 ${layer.visible ? 'opacity-100' : 'opacity-30'}`}
                 title={layer.visible ? 'Hide Layer' : 'Show Layer'}
               >
                 👁️
               </button>
 
               {/* Visual Thumbnail */}
-              <div className="w-8 h-8 rounded-lg border border-[#E2E8F0] bg-slate-100 overflow-hidden flex items-center justify-center shrink-0 relative shadow-2xs">
+              <div className="w-8 h-8 border-2 border-black bg-slate-200 overflow-hidden flex items-center justify-center shrink-0 relative shadow-[1px_1px_0px_#000]">
                 {layer.imagePath ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={layer.imagePath} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-[10px] text-[#5A6E7F] font-mono font-bold uppercase">{layer.name.slice(0, 2)}</span>
+                  <span className="text-[10px] text-black font-mono font-black uppercase">{layer.name.slice(0, 2)}</span>
                 )}
-                {!layer.visible && <div className="absolute inset-0 bg-black/20" />}
+                {!layer.visible && <div className="absolute inset-0 bg-black/40" />}
               </div>
 
               {/* Layer Title */}
@@ -279,17 +279,17 @@ export default function LayerPanel() {
                       if (e.key === 'Enter') handleSaveRename(layer.id)
                       if (e.key === 'Escape') setEditingId(null)
                     }}
-                    className="w-full px-1.5 py-0.5 text-xs border border-[#219EBC] rounded-md bg-white text-[#0F172A] focus:outline-none"
+                    className="neo-input w-full px-1.5 py-0.5 text-xs bg-white"
                     autoFocus
                     onClick={e => e.stopPropagation()}
                   />
                 ) : (
                   <div className="flex items-center justify-between">
-                    <span className="truncate text-xs" title={layer.name}>
+                    <span className="truncate text-xs font-black text-black" title={layer.name}>
                       {layer.name}
                     </span>
                     {annCount > 0 && (
-                      <span className="ml-1 text-[9px] px-1.5 py-0.2 rounded-full bg-[#FB8A0A]/15 text-[#FB8A0A] font-bold font-mono border border-[#FB8A0A]/20">
+                      <span className="neo-badge bg-[var(--primary)] text-black ml-1">
                         {annCount}
                       </span>
                     )}
@@ -303,7 +303,7 @@ export default function LayerPanel() {
                   e.stopPropagation()
                   updateLayer(layer.id, { locked: !layer.locked })
                 }}
-                className={`text-[11px] p-0.5 ${layer.locked ? 'opacity-100 text-[#FB8A0A]' : 'opacity-0 group-hover:opacity-40'}`}
+                className={`text-xs p-0.5 ${layer.locked ? 'opacity-100' : 'opacity-0 group-hover:opacity-40'}`}
                 title={layer.locked ? 'Unlock Layer' : 'Lock Layer'}
               >
                 {layer.locked ? '🔒' : '🔓'}
@@ -314,11 +314,11 @@ export default function LayerPanel() {
       </div>
 
       {/* Photoshop Bottom Action Bar */}
-      <div className="p-2 border-t border-[#E2E8F0] bg-[#F6F9FA] flex items-center justify-around text-sm">
+      <div className="p-2 border-t-2.5 border-black bg-[var(--surface-alt)] flex items-center justify-around text-xs">
         <button
           onClick={() => handleMoveLayer('up')}
           disabled={!activeLayer || sortedLayers.findIndex(l => l.id === activeLayer.id) === 0}
-          className="p-1.5 rounded-md hover:bg-[#EBF7FA] hover:text-[#219EBC] disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer"
+          className="neo-btn neo-btn-white p-1.5 font-black"
           title="Move Layer Up"
         >
           ▲
@@ -326,7 +326,7 @@ export default function LayerPanel() {
         <button
           onClick={() => handleMoveLayer('down')}
           disabled={!activeLayer || sortedLayers.findIndex(l => l.id === activeLayer.id) === sortedLayers.length - 1}
-          className="p-1.5 rounded-md hover:bg-[#EBF7FA] hover:text-[#219EBC] disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer"
+          className="neo-btn neo-btn-white p-1.5 font-black"
           title="Move Layer Down"
         >
           ▼
@@ -334,7 +334,7 @@ export default function LayerPanel() {
         <button
           onClick={handleDuplicateActive}
           disabled={!activeLayer}
-          className="p-1.5 rounded-md hover:bg-[#EBF7FA] hover:text-[#219EBC] disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer"
+          className="neo-btn neo-btn-white p-1.5 font-black"
           title="Duplicate Active Layer"
         >
           ⧉
@@ -342,7 +342,7 @@ export default function LayerPanel() {
         <button
           onClick={handleDeleteActive}
           disabled={!activeLayer}
-          className="p-1.5 text-red-500 rounded-md hover:bg-red-50 disabled:opacity-30 disabled:hover:bg-transparent cursor-pointer"
+          className="neo-btn neo-btn-danger p-1.5 font-black"
           title="Delete Active Layer"
         >
           🗑️

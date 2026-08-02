@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useRef } from 'react'
+import { useState, useMemo, useRef, useCallback } from 'react'
 import { useStore } from '@/lib/store'
 import type { DeleteImpact } from '@/lib/types'
 
@@ -20,8 +20,7 @@ export default function InspectorPanel() {
   const activeLayer = layers.find(l => l.id === activeLayerId)
   const debounceRef = useRef<NodeJS.Timeout | null>(null)
 
-  const handleScaleChange = (layerId: string, alignScale: number) => {
-    // Instant optimistic update in Zustand store for zero-latency slider rendering
+  const handleScaleChange = useCallback((layerId: string, alignScale: number) => {
     useStore.setState({
       layers: layers.map(l => l.id === layerId ? { ...l, alignScale } : l)
     })
@@ -30,9 +29,9 @@ export default function InspectorPanel() {
     debounceRef.current = setTimeout(() => {
       updateLayer(layerId, { alignScale })
     }, 300)
-  }
+  }, [layers, updateLayer])
 
-  const handleOffsetXChange = (layerId: string, alignX: number) => {
+  const handleOffsetXChange = useCallback((layerId: string, alignX: number) => {
     useStore.setState({
       layers: layers.map(l => l.id === layerId ? { ...l, alignX } : l)
     })
@@ -40,9 +39,9 @@ export default function InspectorPanel() {
     debounceRef.current = setTimeout(() => {
       updateLayer(layerId, { alignX })
     }, 300)
-  }
+  }, [layers, updateLayer])
 
-  const handleOffsetYChange = (layerId: string, alignY: number) => {
+  const handleOffsetYChange = useCallback((layerId: string, alignY: number) => {
     useStore.setState({
       layers: layers.map(l => l.id === layerId ? { ...l, alignY } : l)
     })
@@ -50,7 +49,7 @@ export default function InspectorPanel() {
     debounceRef.current = setTimeout(() => {
       updateLayer(layerId, { alignY })
     }, 300)
-  }
+  }, [layers, updateLayer])
 
   const nodeForm = useMemo(() => {
     if (!selectedNodeId) return {} as Record<string, string>
@@ -116,37 +115,38 @@ export default function InspectorPanel() {
     }
     return (
       <div className="inspector-section">
-        <h3>Active Layer</h3>
-        <p className="text-sm font-bold text-[#0F172A]">{activeLayer.name}</p>
+        <h3>ACTIVE LAYER</h3>
+        <p className="text-sm font-black text-black uppercase">{activeLayer.name}</p>
         {activeLayer.imagePath ? (
-          <div className="mt-2.5 space-y-2.5">
+          <div className="mt-3 space-y-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={activeLayer.imagePath} alt="" className="w-full rounded-xl border border-[#E2E8F0] shadow-2xs" style={{ maxHeight: 130, objectFit: 'contain' }} />
+            <img src={activeLayer.imagePath} alt="" className="w-full border-2 border-black shadow-[2px_2px_0px_#000]" style={{ maxHeight: 130, objectFit: 'contain' }} />
 
-            <div className="space-y-2 pt-2 border-t border-[#E2E8F0] text-xs">
-              <span className="font-bold text-[#219EBC] block text-[11px]">Image Alignment & Scale</span>
+            <div className="space-y-2.5 pt-2 border-t-2 border-black text-xs font-bold">
+              <span className="font-black text-black block text-xs uppercase">IMAGE ALIGNMENT & SCALE</span>
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="text-[10px] text-[#5A6E7F] block font-medium">Offset X (px)</label>
+                  <label className="text-[10px] text-black font-extrabold uppercase block mb-1">OFFSET X (PX)</label>
                   <input
                     type="number"
                     value={activeLayer.alignX || 0}
+                    // eslint-disable-next-line react-hooks/refs
                     onChange={(e) => handleOffsetXChange(activeLayer.id, parseFloat(e.target.value) || 0)}
-                    className="w-full px-2 py-1 border border-[#E2E8F0] rounded-lg text-xs bg-white focus:outline-none focus:border-[#219EBC]"
+                    className="neo-input w-full px-2 py-1 text-xs"
                   />
                 </div>
                 <div>
-                  <label className="text-[10px] text-[#5A6E7F] block font-medium">Offset Y (px)</label>
+                  <label className="text-[10px] text-black font-extrabold uppercase block mb-1">OFFSET Y (PX)</label>
                   <input
                     type="number"
                     value={activeLayer.alignY || 0}
                     onChange={(e) => handleOffsetYChange(activeLayer.id, parseFloat(e.target.value) || 0)}
-                    className="w-full px-2 py-1 border border-[#E2E8F0] rounded-lg text-xs bg-white focus:outline-none focus:border-[#219EBC]"
+                    className="neo-input w-full px-2 py-1 text-xs"
                   />
                 </div>
               </div>
               <div>
-                <label className="text-[10px] text-[#5A6E7F] block font-medium">Scale ({(activeLayer.alignScale || 1).toFixed(2)}x)</label>
+                <label className="text-[10px] text-black font-extrabold uppercase block mb-1">SCALE ({(activeLayer.alignScale || 1).toFixed(2)}X)</label>
                 <input
                   type="range"
                   min="0.1"
@@ -154,22 +154,27 @@ export default function InspectorPanel() {
                   step="0.05"
                   value={activeLayer.alignScale || 1}
                   onChange={(e) => handleScaleChange(activeLayer.id, parseFloat(e.target.value) || 1)}
-                  className="w-full h-1.5 accent-[#219EBC] cursor-pointer"
+                  className="w-full h-2 accent-black bg-white border border-black cursor-pointer"
                 />
               </div>
             </div>
 
             <button
               onClick={() => updateLayer(activeLayer.id, { imagePath: '' })}
-              className="mt-1 text-xs text-red-500 hover:underline cursor-pointer font-medium"
+              className="neo-btn neo-btn-danger px-3 py-1 text-xs w-full"
             >
-              Remove image
+              REMOVE IMAGE
             </button>
           </div>
         ) : (
-          <div className="mt-2.5">
-            <label className="block text-xs text-[#5A6E7F] font-medium mb-1.5">Upload Image</label>
-            <input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={handleUpload} className="text-xs file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#EBF7FA] file:text-[#219EBC] hover:file:bg-[#219EBC] hover:file:text-white transition-colors cursor-pointer" />
+          <div className="mt-3 space-y-2">
+            <label className="block text-xs font-black uppercase text-black">UPLOAD IMAGE</label>
+            <input
+              type="file"
+              accept="image/png,image/jpeg,image/webp,image/svg+xml"
+              onChange={handleUpload}
+              className="neo-input text-xs w-full p-1.5 file:mr-2 file:py-1 file:px-3 file:border-2 file:border-black file:text-xs file:font-black file:bg-[var(--primary)] file:text-black hover:file:bg-[var(--primary-hover)] transition-colors cursor-pointer"
+            />
           </div>
         )}
       </div>
@@ -180,65 +185,160 @@ export default function InspectorPanel() {
     if (!selectedNodeId) return null
     const node = nodes.find(n => n.id === selectedNodeId)
     if (!node) return null
+
+    const nodeRelationships = (useStore.getState().relationships || []).filter(
+      r => r.sourceNodeId === node.id || r.targetNodeId === node.id
+    )
+
+    const nodeTrails = (useStore.getState().reasoningPaths || []).filter(
+      p => p.steps?.some(s => s.nodeId === node.id)
+    )
+
     return (
       <div className="inspector-section">
-        <div className="flex items-center justify-between mb-2.5">
-          <h3>Concept Node</h3>
-          <button onClick={() => handleDeleteNodeCheck(node.id)} className="text-xs text-red-500 hover:underline font-semibold cursor-pointer">Delete</button>
+        <div className="flex items-center justify-between mb-3">
+          <h3>CONCEPT NODE</h3>
+          <button onClick={() => handleDeleteNodeCheck(node.id)} className="neo-btn neo-btn-danger px-2.5 py-1 text-xs">
+            DELETE
+          </button>
         </div>
-        <div className="space-y-2.5 text-xs">
+        <div className="space-y-3 text-xs">
           <div>
-            <label className="text-[#5A6E7F] font-medium block mb-0.5">Title</label>
+            <label className="text-black font-black uppercase text-[11px] block mb-1">TITLE *</label>
             <input type="text" value={nodeForm.title || ''} onChange={e => { const v = e.target.value; useStore.getState().updateNode(node.id, { title: v }) }}
-              className="w-full px-2.5 py-1.5 border border-[#E2E8F0] rounded-lg bg-white focus:outline-none focus:border-[#219EBC]" />
+              className="neo-input w-full px-3 py-1.5 text-xs" placeholder="Primary Title" />
           </div>
+
           <div>
-            <label className="text-[#5A6E7F] font-medium block mb-0.5">Short Definition</label>
+            <label className="text-black font-black uppercase text-[11px] block mb-1">CANONICAL NAME</label>
+            <input type="text" value={nodeForm.canonicalName || ''} onChange={e => { const v = e.target.value; useStore.getState().updateNode(node.id, { canonicalName: v }) }}
+              className="neo-input w-full px-3 py-1.5 text-xs" placeholder="e.g. Arteria bronchialis" />
+          </div>
+
+          <div>
+            <label className="text-black font-black uppercase text-[11px] block mb-1">CATEGORY</label>
+            <select value={nodeForm.category || ''} onChange={e => useStore.getState().updateNode(node.id, { category: e.target.value })}
+              className="neo-input w-full px-3 py-1.5 text-xs font-bold">
+              <option value="">Select Category...</option>
+              <option value="Anatomy">Anatomy</option>
+              <option value="Physiology">Physiology</option>
+              <option value="Pathology">Pathology</option>
+              <option value="Symptom">Symptom / Sign</option>
+              <option value="Biomarker">Biomarker / Lab</option>
+              <option value="Drug">Drug / Therapy</option>
+              <option value="Process">Process / Pathway</option>
+              <option value="Function">Function</option>
+              <option value="General">General Concept</option>
+            </select>
+          </div>
+
+          <div>
+            <label className="text-black font-black uppercase text-[11px] block mb-1">ALIASES</label>
+            <input type="text" value={nodeForm.aliases || ''} onChange={e => { const v = e.target.value; useStore.getState().updateNode(node.id, { aliases: v }) }}
+              className="neo-input w-full px-3 py-1.5 text-xs" placeholder="Synonyms / alternate names" />
+          </div>
+
+          <div>
+            <label className="text-black font-black uppercase text-[11px] block mb-1">SHORT DEFINITION</label>
             <input type="text" value={nodeForm.shortDefinition || ''} onChange={e => { const v = e.target.value; useStore.getState().updateNode(node.id, { shortDefinition: v }) }}
-              className="w-full px-2.5 py-1.5 border border-[#E2E8F0] rounded-lg bg-white focus:outline-none focus:border-[#219EBC]" />
+              className="neo-input w-full px-3 py-1.5 text-xs" placeholder="Brief definition" />
           </div>
+
           <div>
-            <label className="text-[#5A6E7F] font-medium block mb-0.5">General Info</label>
+            <label className="text-black font-black uppercase text-[11px] block mb-1">ANATOMICAL LOCATION</label>
+            <input type="text" value={nodeForm.anatomicalLocation || ''} onChange={e => { const v = e.target.value; useStore.getState().updateNode(node.id, { anatomicalLocation: v }) }}
+              className="neo-input w-full px-3 py-1.5 text-xs" placeholder="e.g. Left Atrium, Anterior Mediastinum" />
+          </div>
+
+          <div>
+            <label className="text-black font-black uppercase text-[11px] block mb-1">GENERAL INFORMATION</label>
             <textarea value={nodeForm.generalInfo || ''} onChange={e => { const v = e.target.value; useStore.getState().updateNode(node.id, { generalInfo: v }) }}
-              className="w-full px-2.5 py-1.5 border border-[#E2E8F0] rounded-lg bg-white resize-none focus:outline-none focus:border-[#219EBC]" rows={3} />
+              className="neo-input w-full px-3 py-1.5 text-xs resize-none" rows={3} placeholder="General information, clinical relevance, facts..." />
           </div>
+
           <div>
-            <label className="text-[#5A6E7F] font-medium block mb-0.5">Tags</label>
+            <label className="text-black font-black uppercase text-[11px] block mb-1">EDITOR COMMENT</label>
+            <textarea value={nodeForm.editorComment || ''} onChange={e => { const v = e.target.value; useStore.getState().updateNode(node.id, { editorComment: v }) }}
+              className="neo-input w-full px-3 py-1.5 text-xs resize-none" rows={2} placeholder="Authoring notes, review comments..." />
+          </div>
+
+          <div>
+            <label className="text-black font-black uppercase text-[11px] block mb-1">SUGGESTED TRAILS</label>
+            <input type="text" value={nodeForm.suggestedTrails || ''} onChange={e => { const v = e.target.value; useStore.getState().updateNode(node.id, { suggestedTrails: v }) }}
+              className="neo-input w-full px-3 py-1.5 text-xs" placeholder="Recommended reasoning paths / trails" />
+            {nodeTrails.length > 0 && (
+              <div className="mt-1 flex flex-wrap gap-1">
+                {nodeTrails.map(t => (
+                  <span key={t.id} className="neo-badge bg-[var(--primary-light)] text-black">
+                    Trail: {t.name}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Relations Section */}
+          <div className="pt-2 border-t-2 border-black">
+            <label className="text-black font-black uppercase text-[11px] block mb-1.5">RELATIONS ({nodeRelationships.length})</label>
+            {nodeRelationships.length > 0 ? (
+              <div className="space-y-1.5 max-h-32 overflow-y-auto pr-1">
+                {nodeRelationships.map(r => {
+                  const isSource = r.sourceNodeId === node.id
+                  const otherNodeId = isSource ? r.targetNodeId : r.sourceNodeId
+                  const otherNode = nodes.find(n => n.id === otherNodeId)
+                  return (
+                    <div key={r.id} className="flex items-center gap-1.5 text-xs p-2 bg-[#FFFDF5] border-2 border-black font-bold">
+                      <span className="font-black text-black">{isSource ? '→ OUT' : '← IN'}</span>
+                      <span className="font-mono text-[10px] text-black bg-[var(--primary)] px-1 border border-black">[{r.type}]</span>
+                      <span className="truncate flex-1 text-black">{otherNode?.title || 'Unknown node'}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <p className="text-xs text-[#444444] font-semibold italic">No relationships connected to this node yet.</p>
+            )}
+          </div>
+
+          <div>
+            <label className="text-black font-black uppercase text-[11px] block mb-1">TAGS</label>
             <input type="text" value={nodeForm.tags || ''} onChange={e => { const v = e.target.value; useStore.getState().updateNode(node.id, { tags: v }) }}
-              className="w-full px-2.5 py-1.5 border border-[#E2E8F0] rounded-lg bg-white focus:outline-none focus:border-[#219EBC]" placeholder="comma separated" />
+              className="neo-input w-full px-3 py-1.5 text-xs" placeholder="comma separated" />
           </div>
+
           <div>
-            <label className="text-[#5A6E7F] font-medium block mb-0.5">Status</label>
+            <label className="text-black font-black uppercase text-[11px] block mb-1">STATUS</label>
             <select value={nodeForm.authoringStatus || 'draft'} onChange={e => useStore.getState().updateNode(node.id, { authoringStatus: e.target.value })}
-              className="w-full px-2.5 py-1.5 border border-[#E2E8F0] rounded-lg bg-white focus:outline-none focus:border-[#219EBC]">
+              className="neo-input w-full px-3 py-1.5 text-xs font-bold">
               <option value="draft">Draft</option>
               <option value="review">Review</option>
               <option value="complete">Complete</option>
             </select>
           </div>
-          <button onClick={handleNodeUpdate} className="w-full px-4 py-2 bg-[#219EBC] hover:bg-[#1A86A1] text-white rounded-xl text-xs font-semibold shadow-xs transition-colors cursor-pointer">
-            Save Changes
+
+          <button onClick={handleNodeUpdate} className="neo-btn neo-btn-primary w-full py-2 text-xs font-black">
+            SAVE CHANGES
           </button>
         </div>
 
         {showDeleteConfirm === node.id && impact && (
-          <div className="mt-3 p-3 border border-red-200 bg-red-50/50 rounded-xl text-xs">
-            <p className="font-bold text-red-600 mb-1">Delete Impact Warning:</p>
-            <ul className="list-disc pl-4 space-y-0.5 text-red-700">
+          <div className="mt-3 p-3 border-2 border-black bg-[var(--danger-light)] text-xs font-bold space-y-2">
+            <p className="font-black text-[var(--danger)] uppercase">DELETE IMPACT WARNING:</p>
+            <ul className="list-disc pl-4 space-y-1 text-black">
               {impact.relationships > 0 && <li>{impact.relationships} relationship(s)</li>}
               {impact.crossLayerRelationships > 0 && <li>{impact.crossLayerRelationships} cross-layer relationship(s)</li>}
               {impact.reasoningPathSteps > 0 && <li>{impact.reasoningPathSteps} reasoning step(s) in {impact.reasoningPaths} path(s)</li>}
               {impact.hyperedgeMembers > 0 && <li>{impact.hyperedgeMembers} hyperedge member(s) in {impact.hyperedges} hyperedge(s)</li>}
             </ul>
-            <div className="flex gap-2 mt-2.5">
-              <button onClick={confirmDeleteNode} className="px-3 py-1 bg-red-600 text-white rounded-lg text-xs font-semibold cursor-pointer">Confirm Delete</button>
-              <button onClick={() => { setShowDeleteConfirm(null); setImpact(null) }} className="px-3 py-1 border border-[#E2E8F0] bg-white rounded-lg text-xs text-[#5A6E7F] cursor-pointer">Cancel</button>
+            <div className="flex gap-2 pt-1">
+              <button onClick={confirmDeleteNode} className="neo-btn neo-btn-danger px-3 py-1 text-xs font-black">CONFIRM DELETE</button>
+              <button onClick={() => { setShowDeleteConfirm(null); setImpact(null) }} className="neo-btn neo-btn-white px-3 py-1 text-xs font-bold">CANCEL</button>
             </div>
           </div>
         )}
 
-        <div className="mt-3 text-[10px] text-[#5A6E7F] bg-[#F6F9FA] px-2 py-1 rounded-md border border-[#E2E8F0]">
-          Layer: <strong className="text-[#0F172A]">{layers.find(l => l.id === node.layerId)?.name || 'Unknown'}</strong>
+        <div className="mt-3 text-xs font-bold text-black bg-[var(--surface-alt)] px-3 py-1.5 border-2 border-black">
+          LAYER: <strong className="font-black text-black uppercase">{layers.find(l => l.id === node.layerId)?.name || 'UNKNOWN'}</strong>
         </div>
       </div>
     )
@@ -250,9 +350,11 @@ export default function InspectorPanel() {
     if (selectedAnnotationIds.length <= 1) return null
     return (
       <div className="inspector-section">
-        <h3>Multi-Selection</h3>
-        <p className="text-xs text-[#219EBC] font-bold mb-2">{selectedAnnotationIds.length} objects selected</p>
-        <p className="text-[11px] text-[#5A6E7F] mb-3">You can drag any selected object on the canvas to move all selected objects together.</p>
+        <h3>MULTI-SELECTION</h3>
+        <p className="text-xs font-black text-black bg-[var(--secondary)] border-2 border-black p-2 mb-3 inline-block shadow-[2px_2px_0px_#000]">
+          {selectedAnnotationIds.length} OBJECTS SELECTED
+        </p>
+        <p className="text-xs font-semibold text-[#333333] mb-4">You can drag any selected object on the canvas to move all selected objects together.</p>
         <button
           onClick={async () => {
             for (const id of selectedAnnotationIds) {
@@ -266,23 +368,23 @@ export default function InspectorPanel() {
             useStore.getState().setSelectedAnnotationIds([])
             useStore.getState().setSelectedNodeId(null)
           }}
-          className="w-full px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-semibold transition-colors cursor-pointer"
+          className="neo-btn neo-btn-danger w-full py-2 text-xs font-black"
         >
-          Delete All Selected ({selectedAnnotationIds.length})
+          DELETE ALL SELECTED ({selectedAnnotationIds.length})
         </button>
       </div>
     )
   }
 
   return (
-    <div className="border-l border-[#E2E8F0] bg-white overflow-y-auto">
+    <div className="border-l-2.5 border-black bg-white overflow-y-auto">
       {renderMultiSelectionInspector()}
       {selectedAnnotationIds.length <= 1 && renderLayerInspector()}
       {selectedAnnotationIds.length <= 1 && renderNodeInspector()}
       {selectedAnnotationIds.length === 0 && !selectedNodeId && (
         <div className="inspector-section">
-          <h3>Selection Inspector</h3>
-          <p className="text-xs text-[#5A6E7F]">Select a node, image layer, or drag a marquee box on the canvas to select objects.</p>
+          <h3>SELECTION INSPECTOR</h3>
+          <p className="text-xs font-semibold text-[#333333]">Select a node, image layer, or drag a marquee box on the canvas to select objects.</p>
         </div>
       )}
     </div>

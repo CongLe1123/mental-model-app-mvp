@@ -43,11 +43,17 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
           organId,
           layerId: newLayer.id,
           title: node.title,
+          canonicalName: node.canonicalName,
+          category: node.category,
+          aliases: node.aliases,
           shortDefinition: node.shortDefinition,
           detailedExplanation: node.detailedExplanation,
           tags: node.tags,
           authoringStatus: node.authoringStatus,
           generalInfo: node.generalInfo,
+          anatomicalLocation: node.anatomicalLocation,
+          editorComment: node.editorComment,
+          suggestedTrails: node.suggestedTrails,
         },
       })
       nodeIdMap.set(node.id, newNode.id)

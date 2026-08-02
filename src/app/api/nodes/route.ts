@@ -2,7 +2,11 @@ import { NextResponse } from 'next/server'
 import prisma from '@/lib/prisma'
 
 export async function POST(req: Request) {
-  const { organId, layerId, title, shortDefinition, tags, authoringStatus, generalInfo } = await req.json()
+  const {
+    organId, layerId, title, canonicalName, category, aliases,
+    shortDefinition, tags, authoringStatus, generalInfo,
+    anatomicalLocation, editorComment, suggestedTrails
+  } = await req.json()
   if (!organId || !layerId || !title?.trim()) {
     return NextResponse.json({ error: 'organId, layerId, title required' }, { status: 400 })
   }
@@ -11,10 +15,16 @@ export async function POST(req: Request) {
       organId,
       layerId,
       title: title.trim(),
+      canonicalName: canonicalName || '',
+      category: category || '',
+      aliases: aliases || '',
       shortDefinition: shortDefinition || '',
       tags: tags || '',
       authoringStatus: authoringStatus || 'draft',
       generalInfo: generalInfo || '',
+      anatomicalLocation: anatomicalLocation || '',
+      editorComment: editorComment || '',
+      suggestedTrails: suggestedTrails || '',
     },
   })
   return NextResponse.json(node, { status: 201 })

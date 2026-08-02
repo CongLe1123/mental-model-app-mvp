@@ -42,11 +42,17 @@ export interface ConceptNodeData {
   organId: string
   layerId: string
   title: string
-  shortDefinition: string
-  detailedExplanation: string
-  tags: string
-  authoringStatus: string
-  generalInfo: string
+  canonicalName?: string
+  category?: string
+  aliases?: string
+  shortDefinition?: string
+  detailedExplanation?: string
+  tags?: string
+  authoringStatus?: string
+  generalInfo?: string
+  anatomicalLocation?: string
+  editorComment?: string
+  suggestedTrails?: string
 }
 
 export interface RelationshipData {

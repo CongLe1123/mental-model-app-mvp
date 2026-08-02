@@ -1,33 +1,46 @@
 @import "tailwindcss";
 
 :root {
-  /* Brand Theme Colors */
-  --primary: #219ebc;
-  --primary-hover: #1a86a1;
-  --primary-light: #ebf7fa;
-  --primary-border: #b6e5f0;
+  /* Neo-Brutalist Core Design Tokens */
+  --background: #FFFDF5;
+  --surface: #FFFFFF;
+  --surface-alt: #F4F0EA;
+  --foreground: #000000;
+  
+  --border: #000000;
+  --border-width-sm: 2px;
+  --border-width-lg: 3px;
 
-  --secondary: #fb8a0a;
-  --secondary-hover: #df7500;
-  --secondary-light: #fff6ec;
-  --secondary-border: #ffd4a3;
+  /* Saturated Neo-Brutalist Palette */
+  --primary: #FFD200;        /* Bold Cyber Yellow */
+  --primary-hover: #FFC400;
+  --primary-light: #FFF9CC;
 
-  --background: #f6f9fa;
-  --surface: #ffffff;
-  --surface-hover: #f0f5f8;
+  --secondary: #00E5FF;      /* Electric Cyan */
+  --secondary-hover: #00CDE5;
+  --secondary-light: #E0FCFF;
 
-  --foreground: #0f172a;
-  --text-muted: #5a6e7f;
-  --border: #e2e8f0;
-  --border-subtle: #edf2f7;
+  --accent: #FF6B35;         /* Neo Coral/Orange */
+  --accent-hover: #E8551F;
+  --accent-light: #FFEBE4;
 
-  --danger: #ef4444;
-  --success: #10b981;
-  --warning: #fb8a0a;
+  --lime: #CCFF00;           /* Acid Lime */
+  --purple: #A55EEA;         /* Neon Purple */
+
+  --text-muted: #222222;
+  --text-dim: #555555;
+
+  --danger: #FF3838;
+  --danger-light: #FFE5E5;
+
+  --success: #00D26A;
+  --success-light: #E0F9ED;
+
+  --warning: #FF9F1A;
+  --warning-light: #FFF2E0;
 
   /* Backward compatibility aliases */
-  --accent: #219ebc;
-  --accent-hover: #1a86a1;
+  --accent-hover: #E8551F;
 }
 
 @theme inline {
@@ -46,20 +59,147 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Custom Scrollbars */
+/* Custom Neo-Brutalist Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--background);
+  border-left: 2px solid #000;
+  border-top: 2px solid #000;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 9999px;
+  background: #000;
+  border: 1px solid #fff;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: var(--primary);
+}
+
+/* Neo-Brutalist Core Container Classes */
+.neo-container {
+  background-color: var(--surface);
+  border: 2.5px solid #000000;
+  box-shadow: 4px 4px 0px #000000;
+}
+
+.neo-container-sm {
+  background-color: var(--surface);
+  border: 2px solid #000000;
+  box-shadow: 3px 3px 0px #000000;
+}
+
+.neo-card-interactive {
+  background-color: var(--surface);
+  border: 2.5px solid #000000;
+  box-shadow: 4px 4px 0px #000000;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.neo-card-interactive:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #000000;
+}
+
+.neo-card-interactive:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px #000000;
+}
+
+/* Neo-Brutalist Buttons */
+.neo-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  border: 2px solid #000000;
+  box-shadow: 3px 3px 0px #000000;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.1s ease;
+  cursor: pointer;
+  user-select: none;
+}
+
+.neo-btn:hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0px #000000;
+}
+
+.neo-btn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px #000000;
+}
+
+.neo-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: 2px 2px 0px #000000;
+}
+
+.neo-btn-primary {
+  background-color: var(--primary);
+  color: #000000;
+}
+.neo-btn-primary:hover:not(:disabled) {
+  background-color: var(--primary-hover);
+}
+
+.neo-btn-secondary {
+  background-color: var(--secondary);
+  color: #000000;
+}
+.neo-btn-secondary:hover:not(:disabled) {
+  background-color: var(--secondary-hover);
+}
+
+.neo-btn-accent {
+  background-color: var(--accent);
+  color: #000000;
+}
+
+.neo-btn-white {
+  background-color: #FFFFFF;
+  color: #000000;
+}
+.neo-btn-white:hover:not(:disabled) {
+  background-color: var(--surface-alt);
+}
+
+.neo-btn-danger {
+  background-color: var(--danger);
+  color: #FFFFFF;
+}
+
+/* Neo Form Inputs */
+.neo-input {
+  border: 2px solid #000000;
+  background-color: #FFFFFF;
+  color: #000000;
+  font-weight: 600;
+  box-shadow: 2px 2px 0px #000000;
+  transition: box-shadow 0.1s ease, background-color 0.1s ease;
+}
+
+.neo-input:focus {
+  outline: none;
+  box-shadow: 4px 4px 0px #000000;
+  background-color: #FFFFFF;
+}
+
+/* Neo Badges */
+.neo-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 2px solid #000000;
+  font-weight: 800;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 7px;
+  box-shadow: 2px 2px 0px #000000;
+  background-color: #FFFFFF;
+  color: #000000;
 }
 
 /* Editor layout classes */
@@ -72,34 +212,36 @@ body {
 
 .editor-main {
   display: grid;
-  grid-template-columns: 240px 1fr 280px;
+  grid-template-columns: 260px 1fr 300px;
   overflow: hidden;
 }
 
 .knowledge-panel {
-  border-top: 1px solid var(--border);
+  border-top: 2.5px solid #000000;
   background: var(--surface);
-  box-shadow: 0 -4px 12px rgba(15, 23, 42, 0.03);
 }
 
 /* Onion layer styles */
 .layer-thumbnail {
   position: relative;
-  border: 2px solid transparent;
-  transition: all 0.15s ease;
+  border: 2px solid #000000;
+  transition: all 0.1s ease;
 }
 
 .layer-thumbnail.active {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 2px rgba(33, 158, 188, 0.2);
+  border-color: #000000;
+  background-color: var(--primary);
+  box-shadow: 3px 3px 0px #000000;
 }
 
 /* Canvas Container */
 .canvas-container {
   position: relative;
   overflow: hidden;
-  background-color: #f1f5f9;
-  background-image: radial-gradient(circle, #219ebc26 1.2px, transparent 1.2px);
+  background-color: #F4F0EA;
+  background-image: 
+    linear-gradient(to right, rgba(0, 0, 0, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.08) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
@@ -111,7 +253,7 @@ body {
   justify-content: center;
   gap: 0.5rem;
   padding: 2rem;
-  color: var(--text-muted);
+  color: #000000;
   text-align: center;
 }
 
@@ -121,47 +263,48 @@ body {
   align-items: center;
   justify-content: center;
   padding: 0 10px;
-  height: 32px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--foreground);
+  height: 34px;
+  border: 2px solid #000000;
+  background: #FFFFFF;
+  color: #000000;
   cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  transition: all 0.15s ease;
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: 2px 2px 0px #000000;
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background-color 0.1s ease;
 }
 
 .tool-btn:hover {
-  background: var(--surface-hover);
-  border-color: #cbd5e1;
+  background: var(--surface-alt);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px #000000;
 }
 
 .tool-btn.active {
   background: var(--primary);
-  color: #ffffff;
-  border-color: var(--primary);
-  box-shadow: 0 2px 8px rgba(33, 158, 188, 0.3);
+  color: #000000;
+  box-shadow: 3px 3px 0px #000000;
+  transform: translate(-1px, -1px);
 }
 
 .tool-btn:focus-visible {
-  outline: 2px solid var(--primary);
+  outline: 2.5px solid #000000;
   outline-offset: 2px;
 }
 
 /* Inspector section */
 .inspector-section {
-  border-bottom: 1px solid var(--border);
-  padding: 0.875rem 1rem;
+  border-bottom: 2px solid #000000;
+  padding: 1rem;
 }
 
 .inspector-section h3 {
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--primary);
-  margin-bottom: 0.625rem;
+  letter-spacing: 0.08em;
+  color: #000000;
+  margin-bottom: 0.75rem;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -170,16 +313,16 @@ body {
 .inspector-section h3::before {
   content: '';
   display: inline-block;
-  width: 4px;
-  height: 12px;
+  width: 6px;
+  height: 14px;
   background-color: var(--primary);
-  border-radius: 2px;
+  border: 1px solid #000000;
 }
 
 /* Focus visible for accessibility */
 *:focus-visible {
-  outline: 2px solid var(--primary);
-  outline-offset: 2px;
+  outline: 2.5px solid #000000 !important;
+  outline-offset: 2px !important;
 }
 
 /* Reduced motion */

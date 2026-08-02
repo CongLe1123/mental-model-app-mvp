@@ -364,12 +364,19 @@ Examples:
 
 A node should support:
 
-- title
+- title (required for creation)
+- canonical name
+- category
+- aliases
 - short definition
 - detailed explanation
+- general information
+- anatomical location
+- editor comment
+- relations (incoming and outgoing linked relationships)
+- suggested trails (reasoning path & trail recommendations)
 - tags
 - authoring status
-- general information
 - associated annotation
 - owning visual layer
 
