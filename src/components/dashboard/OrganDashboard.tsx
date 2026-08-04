@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useStore } from '@/lib/store'
 import toast from 'react-hot-toast'
+import JsonImportModal from '@/components/editor/JsonImportModal'
 
 export default function OrganDashboard() {
   const { organs, loadOrgans, createOrgan, renameOrgan, deleteOrgan } = useStore()
@@ -11,6 +12,7 @@ export default function OrganDashboard() {
   const [newName, setNewName] = useState('')
   const [newDesc, setNewDesc] = useState('')
   const [showCreate, setShowCreate] = useState(false)
+  const [showImportModal, setShowImportModal] = useState(false)
   const [renaming, setRenaming] = useState<string | null>(null)
   const [renameValue, setRenameValue] = useState('')
   const [deleting, setDeleting] = useState<string | null>(null)
@@ -62,13 +64,26 @@ export default function OrganDashboard() {
             <p className="text-xs font-bold text-[#333333]">Medical Mental Model Authoring Platform</p>
           </div>
         </div>
-        <button
-          onClick={() => setShowCreate(!showCreate)}
-          className="neo-btn neo-btn-primary px-5 py-2.5 text-sm"
-        >
-          <span className="text-lg leading-none mr-1">+</span> CREATE ORGAN
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowImportModal(true)}
+            className="neo-btn neo-btn-secondary px-4 py-2.5 text-sm font-black flex items-center gap-1.5"
+          >
+            📥 IMPORT JSON
+          </button>
+          <button
+            onClick={() => setShowCreate(!showCreate)}
+            className="neo-btn neo-btn-primary px-5 py-2.5 text-sm"
+          >
+            <span className="text-lg leading-none mr-1">+</span> CREATE ORGAN
+          </button>
+        </div>
       </header>
+
+      <JsonImportModal
+        isOpen={showImportModal}
+        onClose={() => setShowImportModal(false)}
+      />
 
       {/* Main Dashboard Content */}
       <main className="max-w-4xl mx-auto p-6 md:p-8 space-y-6">

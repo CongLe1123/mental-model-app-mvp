@@ -123,6 +123,10 @@ interface EditorState {
   createEvidence: (data: Partial<EvidenceData>) => Promise<EvidenceData | null>
   updateEvidence: (id: string, data: Partial<EvidenceData>) => Promise<void>
   deleteEvidence: (id: string) => Promise<void>
+
+  // JSON Import & Export
+  importOrganJSON: (jsonData: any) => Promise<OrganData | null>
+  exportOrganJSON: (organId: string) => Promise<any>
 }
 
 async function api(path: string, options?: RequestInit) {
@@ -724,6 +728,33 @@ export const useStore = create<EditorState>((set, get) => ({
       }))
     } catch {
       set({ saveStatus: 'failed' })
+    }
+  },
+
+  importOrganJSON: async (jsonData: any) => {
+    set({ saveStatus: 'saving' })
+    try {
+      const createdOrgan = await api('/api/organs/import', {
+        method: 'POST',
+        body: JSON.stringify(jsonData),
+      })
+      await get().loadOrgans()
+      set({ saveStatus: 'saved' })
+      return createdOrgan
+    } catch (e) {
+      console.error('Import failed:', e)
+      set({ saveStatus: 'failed' })
+      return null
+    }
+  },
+
+  exportOrganJSON: async (organId: string) => {
+    try {
+      const data = await api(`/api/organs/${organId}/export`)
+      return data
+    } catch (e) {
+      console.error('Export failed:', e)
+      return null
     }
   },
 }))

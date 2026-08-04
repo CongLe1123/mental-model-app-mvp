@@ -42,7 +42,9 @@ export default function EditorCanvas() {
 
   // Resizing state
   const [resizingAnn, setResizingAnn] = useState<string | null>(null)
-  const [resizeStart, setResizeStart] = useState<{ x: number; y: number; w: number; h: number } | null>(null)
+  const [resizeDirection, setResizeDirection] = useState<'nw' | 'n' | 'ne' | 'e' | 'se' | 's' | 'sw' | 'w' | null>(null)
+  const [resizeStart, setResizeStart] = useState<{ x: number; y: number; annX: number; annY: number; w: number; h: number } | null>(null)
+  const resizeDebounceRef = useRef<NodeJS.Timeout | null>(null)
 
   const activeLayer = layers.find(l => l.id === activeLayerId)
   const visibleLayers = [...layers].filter(l => l.visible).sort((a, b) => a.order - b.order)
@@ -208,12 +210,40 @@ export default function EditorCanvas() {
       return
     }
 
-    if (resizingAnn && resizeStart) {
-      const newW = Math.max(20, resizeStart.w + (coords.x - resizeStart.x))
-      const newH = Math.max(20, resizeStart.h + (coords.y - resizeStart.y))
+    if (resizingAnn && resizeStart && resizeDirection) {
+      const dx = coords.x - resizeStart.x
+      const dy = coords.y - resizeStart.y
+      let newW = resizeStart.w
+      let newH = resizeStart.h
+      let newX = resizeStart.annX
+      let newY = resizeStart.annY
+
+      if (resizeDirection.includes('e')) {
+        newW = Math.max(20, resizeStart.w + dx)
+      }
+      if (resizeDirection.includes('s')) {
+        newH = Math.max(20, resizeStart.h + dy)
+      }
+      if (resizeDirection.includes('w')) {
+        newW = Math.max(20, resizeStart.w - dx)
+        newX = resizeStart.annX + (resizeStart.w - newW)
+      }
+      if (resizeDirection.includes('n')) {
+        newH = Math.max(20, resizeStart.h - dy)
+        newY = resizeStart.annY + (resizeStart.h - newH)
+      }
+
+      // Smooth local state update for 60fps interaction
       useStore.setState({
-        annotations: annotations.map(a => a.id === resizingAnn ? { ...a, width: newW, height: newH } : a)
+        annotations: annotations.map(a => a.id === resizingAnn ? { ...a, x: newX, y: newY, width: newW, height: newH } : a)
       })
+
+      // Debounced database sync
+      if (resizeDebounceRef.current) clearTimeout(resizeDebounceRef.current)
+      resizeDebounceRef.current = setTimeout(() => {
+        updateAnnotation(resizingAnn, { x: newX, y: newY, width: newW, height: newH })
+      }, 150)
+
       return
     }
 
@@ -291,7 +321,13 @@ export default function EditorCanvas() {
     }
 
     if (resizingAnn) {
+      if (resizeDebounceRef.current) clearTimeout(resizeDebounceRef.current)
+      const finalAnn = annotations.find(a => a.id === resizingAnn)
+      if (finalAnn) {
+        updateAnnotation(resizingAnn, { x: finalAnn.x, y: finalAnn.y, width: finalAnn.width, height: finalAnn.height })
+      }
       setResizingAnn(null)
+      setResizeDirection(null)
       setResizeStart(null)
       return
     }
@@ -516,19 +552,116 @@ export default function EditorCanvas() {
                           }}
                           title={node?.title || 'Region Node'}
                         >
-                          {/* Corner resize handle when selected */}
+                          {/* 8-Directional resize handles when selected */}
                           {isSelected && (
-                            <div
-                              className="w-4 h-4 bg-black border border-white absolute right-0 bottom-0 cursor-se-resize z-10 shadow-[2px_2px_0px_#000]"
-                              onMouseDown={(e) => {
-                                e.stopPropagation()
-                                setResizingAnn(ann.id)
-                                if (containerRef.current) {
-                                  const coords = getCanvasCoords(e, containerRef.current)
-                                  setResizeStart({ x: coords.x, y: coords.y, w: ann.width || 60, h: ann.height || 40 })
-                                }
-                              }}
-                            />
+                            <>
+                              {/* Corners */}
+                              <div
+                                className="w-3.5 h-3.5 bg-black border border-white absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2 cursor-nwse-resize z-20 shadow-[1px_1px_0px_#000] hover:scale-125"
+                                onMouseDown={(e) => {
+                                  e.stopPropagation()
+                                  e.preventDefault()
+                                  setResizingAnn(ann.id)
+                                  setResizeDirection('nw')
+                                  if (containerRef.current) {
+                                    const coords = getCanvasCoords(e, containerRef.current)
+                                    setResizeStart({ x: coords.x, y: coords.y, annX: ann.x, annY: ann.y, w: ann.width || 60, h: ann.height || 40 })
+                                  }
+                                }}
+                              />
+                              <div
+                                className="w-3.5 h-3.5 bg-black border border-white absolute top-0 right-0 translate-x-1/2 -translate-y-1/2 cursor-nesw-resize z-20 shadow-[1px_1px_0px_#000] hover:scale-125"
+                                onMouseDown={(e) => {
+                                  e.stopPropagation()
+                                  e.preventDefault()
+                                  setResizingAnn(ann.id)
+                                  setResizeDirection('ne')
+                                  if (containerRef.current) {
+                                    const coords = getCanvasCoords(e, containerRef.current)
+                                    setResizeStart({ x: coords.x, y: coords.y, annX: ann.x, annY: ann.y, w: ann.width || 60, h: ann.height || 40 })
+                                  }
+                                }}
+                              />
+                              <div
+                                className="w-3.5 h-3.5 bg-black border border-white absolute bottom-0 left-0 -translate-x-1/2 translate-y-1/2 cursor-nesw-resize z-20 shadow-[1px_1px_0px_#000] hover:scale-125"
+                                onMouseDown={(e) => {
+                                  e.stopPropagation()
+                                  e.preventDefault()
+                                  setResizingAnn(ann.id)
+                                  setResizeDirection('sw')
+                                  if (containerRef.current) {
+                                    const coords = getCanvasCoords(e, containerRef.current)
+                                    setResizeStart({ x: coords.x, y: coords.y, annX: ann.x, annY: ann.y, w: ann.width || 60, h: ann.height || 40 })
+                                  }
+                                }}
+                              />
+                              <div
+                                className="w-3.5 h-3.5 bg-black border border-white absolute bottom-0 right-0 translate-x-1/2 translate-y-1/2 cursor-nwse-resize z-20 shadow-[1px_1px_0px_#000] hover:scale-125"
+                                onMouseDown={(e) => {
+                                  e.stopPropagation()
+                                  e.preventDefault()
+                                  setResizingAnn(ann.id)
+                                  setResizeDirection('se')
+                                  if (containerRef.current) {
+                                    const coords = getCanvasCoords(e, containerRef.current)
+                                    setResizeStart({ x: coords.x, y: coords.y, annX: ann.x, annY: ann.y, w: ann.width || 60, h: ann.height || 40 })
+                                  }
+                                }}
+                              />
+                              {/* Edges */}
+                              <div
+                                className="w-3.5 h-3.5 bg-black border border-white absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-ns-resize z-20 shadow-[1px_1px_0px_#000] hover:scale-125"
+                                onMouseDown={(e) => {
+                                  e.stopPropagation()
+                                  e.preventDefault()
+                                  setResizingAnn(ann.id)
+                                  setResizeDirection('n')
+                                  if (containerRef.current) {
+                                    const coords = getCanvasCoords(e, containerRef.current)
+                                    setResizeStart({ x: coords.x, y: coords.y, annX: ann.x, annY: ann.y, w: ann.width || 60, h: ann.height || 40 })
+                                  }
+                                }}
+                              />
+                              <div
+                                className="w-3.5 h-3.5 bg-black border border-white absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 cursor-ns-resize z-20 shadow-[1px_1px_0px_#000] hover:scale-125"
+                                onMouseDown={(e) => {
+                                  e.stopPropagation()
+                                  e.preventDefault()
+                                  setResizingAnn(ann.id)
+                                  setResizeDirection('s')
+                                  if (containerRef.current) {
+                                    const coords = getCanvasCoords(e, containerRef.current)
+                                    setResizeStart({ x: coords.x, y: coords.y, annX: ann.x, annY: ann.y, w: ann.width || 60, h: ann.height || 40 })
+                                  }
+                                }}
+                              />
+                              <div
+                                className="w-3.5 h-3.5 bg-black border border-white absolute top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 cursor-ew-resize z-20 shadow-[1px_1px_0px_#000] hover:scale-125"
+                                onMouseDown={(e) => {
+                                  e.stopPropagation()
+                                  e.preventDefault()
+                                  setResizingAnn(ann.id)
+                                  setResizeDirection('w')
+                                  if (containerRef.current) {
+                                    const coords = getCanvasCoords(e, containerRef.current)
+                                    setResizeStart({ x: coords.x, y: coords.y, annX: ann.x, annY: ann.y, w: ann.width || 60, h: ann.height || 40 })
+                                  }
+                                }}
+                              />
+                              <div
+                                className="w-3.5 h-3.5 bg-black border border-white absolute top-1/2 right-0 translate-x-1/2 -translate-y-1/2 cursor-ew-resize z-20 shadow-[1px_1px_0px_#000] hover:scale-125"
+                                onMouseDown={(e) => {
+                                  e.stopPropagation()
+                                  e.preventDefault()
+                                  setResizingAnn(ann.id)
+                                  setResizeDirection('e')
+                                  if (containerRef.current) {
+                                    const coords = getCanvasCoords(e, containerRef.current)
+                                    setResizeStart({ x: coords.x, y: coords.y, annX: ann.x, annY: ann.y, w: ann.width || 60, h: ann.height || 40 })
+                                  }
+                                }}
+                              />
+                            </>
                           )}
                         </div>
                       )}
